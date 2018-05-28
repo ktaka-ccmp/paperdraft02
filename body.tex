@@ -15,18 +15,17 @@ cost performance improvemets, legal compliance, and shortening the geographical 
 are the main concerns for web service providers in e-commece, gaming, Financial technology(Fintech) and Internet of Things(IoT) field.
 %
 
-Kubernetes\cite{K8s2017}, which is one of the popular container cluster management systems, 
-enables easy deployment of container clusters.
-Since Kubernetes hides the differences in the base environments, users can easily deploy a web service on different 
-cloud providers or on on-premise data centers, without adjusting the container cluster configurations to the new environment. 
+Several container cluster management systems, including kuberenates, docoker swarm etc.,  have been proposed, which  
+enable easy deployment of container clusters.
+Since these container cluster management systems hide the differences in the base environments, users can easily deploy a web service on different cloud providers or on on-premise data centers, without adjusting the container cluster configurations to the new environment. 
 This allows a user to easily migrate a web service consisting of a container cluster even to the other side of the world. 
 A user starts the container cluster in the new location, route the traffic there, 
 then stop the old container cluster at his or her convenience.
 This is a typical web service migration scenario.
 
-However, this scenario only works when the user migrates a container cluster among major cloud providers including Google Cloud Platform (GCP), 
-Amazon Web Services (AWS), and Microsoft Azure.
-The Kubernetes does not include a load balancer, and is heavily dependent on external load balancers that are set up on the fly 
+However, there are difficulty in providing a set of loadbalancers for the incomming traffic of the web services, resulting in difficulty in providing uniform environment for easy migration of web service clusters.  
+
+For example in the case of the Kubernetes, a load balancer is not included in a cluster management system, and is heavily dependent on external load balancers that are set up on the fly 
 by cloud providers through their application protocol interfaces (APIs). 
 These external load balancers distribute incoming traffic to every server that hosts containers.
 The traffic is then distributed again to destination containers using iptables destination 
@@ -35,35 +34,19 @@ The problem happens in the environment with a load balancer that is not supporte
 e.g. in an on-premise data center with a bare metal load balancer. 
 In such environments, the user needs to manually configure 
 the static route for inbound traffic in an ad-hoc manner. 
-Since the Kubernetes fails to provide an uniform environment from a container cluster view point,
-migrating container clusters among the different environments will always be a burden.
 
-In order to solve this problem by eliminating the dependency on external load balancer,
-herein we propose a containerized software load balancer that is run by Kubernetes as  
-as a part of web services consisting of container cluster.
-It enables a user to easily deploy a web service on different environment without modification, 
-because the load balancer is included in the web service itself. 
-To accomplish this, we will containerize Linux kernel's Internet Protocol Virtual Server (IPVS)\cite{Zhang2000} 
-Layer 4 load balancer using an existing Kubernetes ingress\cite{K8sIngress2017} framework, as a proof of concept.
-%
-%
-To prove that our approach will not significantly deteriorate the performance,  
-we will also compare the performance of our proposed load balancer with those of 
-iptables DNAT load balancer and the Nginx Layer 7 load balancing. 
-%
-The results indicated that the proposed load balancer could improve the portability of container clusters 
-without performance degradation compared with the existing load balancer.
-The performance of the proposed load balancer may be affected by the network configurations of overlay network 
-and distributed packet processing. 
-We also evaluate how the network configurations affects the performance and discusses 
-the best setting that derives the best performance.
+In order to address this issue, the author believes a rigorous study on providing uniform setups for incoming traffic,
+thus providing a uniform environment for container clusters, is very important.
+If we have the uniform environment across the different    cloud providers    including on-premise data centers,
+the migration of a web service across the world    becomes    easy and the user will have a variety of choices
+as to where to run their web services.
 
-The contributions of this paper are as follows: 
-1) We propose a portable software load balancer that is runnable on any cloud provider, or on on-premise data centers, 
-as a part of a container cluster.
-2) We discuss feasibility of the proposed load balancer by comparing its performance with other load balancers.
-3) We also discuss usable overlay network configurations and clarify the importance of techniques 
-that will  draw the best performance from such load balancers.  
+This eliminates cloud vendor lock-ins and daunting task that entails in adjusting service to the different type of infrastructures.
+
+The goals of this study are the followings:
+1) To clarify what type of the architecture for incoming traffic is feasible for web service migration.
+2) To provide a software load balancer to achieve above architecture.
+3) To provide working prototype system for the above and assess the actual feasibility.
 
 The rest of the paper is organized as follows.
 Section \ref{Related Work} highlights work that deals specifically with container cluster migration, 
@@ -121,6 +104,22 @@ They utilize running container information stored in key-value storages
 like Core OS etcd\cite{CoreOSEtcd} and HashiCorp's Consul\cite{HashiCorpConsul}. 
 Although these were usable to implement a containerized load balancer in our proposal, we did not use them, 
 since Kubernetes ingress framework already provided the methods to retrieve running container information through standard API.
+
+
+\section{Comparison between the different architecture}\label{Traffice engineering}
+% \section{Traffice engineering for incomming traffic a cluster}\label{Traffice engineering}
+
+\section{Containerised IPVS software load balancer}\label{IPVS software LB}
+
+
+
+\section{XDP loadbalancer}\label{XDP loadbalancer}
+
+\section{Conclusion}\label{XDP loadbalancer}
+
+\section{Future work}\label{XDP loadbalancer}
+
+
 
 \section{Load balancers in Kubernetes cluster}\label{Load balancers in Kubernetes cluster}
 
