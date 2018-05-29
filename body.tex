@@ -40,14 +40,14 @@ If we have the uniform environment across the different cloud providers includin
 This means that there are no cloud vendor lock-ins and users will gain the freedom as to where to run their web services.
 Users will also be able to use combined their infrasructure across the world as if it were a single computer.
 
-The impacts the author believes this study will give potentially to the society are followings:
-1) To provide a critical contribution to enable the smooth web service migrations.
+The impacts the author believes this study will potentially give to the society are the followings:
+1) To provide a critical contribution to enable smooth web service migrations.
 2) Elimination of the vendor lock-ins.
 3) To give the users opportunity to deploy global scale web services.
 
 Therefore in this study, the author clarifies what type of the load balancer architecture is suitable for web service migration. Then he discusses a software load balancer for such architecture. Finally, he provides working prototype system for web service migration.
 
-The rest of the paper is organized as follows.
+(This paragraph needs rewrite)The rest of the paper is organized as follows.
 Section \ref{Related Work} highlights work that deals specifically with container cluster migration, 
 software load balancer containerization, and load balancer related tools within the context of the container technology. 
 Section \ref{Architecture} will explain existing architecture problems and propose our solutions.
@@ -76,8 +76,8 @@ XDP papers
 
 \section{Load balancer and network architecture}\label{Architecture}
 % \section{Traffice engineering for incomming traffic a cluster}\label{Traffice engineering}
-The typical traditional on-premise data center uses a set of load balancers to distribute the incoming traffic to cluster of servers thus providig scalability and redundancy of the service.
-The traffic is routed from the out side of the infrastructure to one of the load balancers using active-backup redundancy protocol OSPF, VRRP or HSRP.
+The typical traditional on-premise data center uses a set of load balancers to distribute the incoming traffic to a cluster of servers thus providing scalability and redundancy of the service.
+The traffic is routed from the outside of the infrastructure to one of the load balancers using active-backup redundancy protocol OSPF, VRRP or HSRP.
 
 More recent architecture enable active-active redundancy using ECMP. The maglev[ref], athena[ref] and shive[ref] leverage this architecture by using software load balancers, thus providing scalability with less cost than the case where proprietary hardware load balancers are used.
 
@@ -86,20 +86,19 @@ So providing a software load balancer that is usable in all of the cloud provide
 
 Here the author discusses the possible network architectures, using such software load balancers.
 
-Here I explain using Figs....
+(Here I explain using Figs....)
 
 It should be noted that even if the load balancer becomes portable and scalable, the actual traffic a data center infrastructure can accommodate is ultimately limited by the incoming network bandwidth and by the core router.
 
 \section{Per flow ECMP}\label{IPVS}
-
+(Maybe cut this section )
 Discuss routing traffic from upstream L3 switch. 
 It is important connect to upstream switches using standard protocol.
 
-ECMP > VRRP
+ECMP  VRRP
 
 
 \section{IPVS portable load balancer}\label{IPVS}
-
 
 The author and his collegue proposed a portable load balancer for the Kubernetes cluster systems 
 that is aimed at facilitating migration of container clusters for web services.
@@ -129,37 +128,39 @@ It shoud be fair to compare the performance of proposed load balancer with those
 The authors leave these issues for future work and they will be discussed elsewhere.
 
 
-Even though we could successfully containerised the load balancers and could deploy it as a part of web service, the performance we was not equivalent that of scalable load balancers provided by the GCP.
+Even though we could successfully containerised the load balancers and could deploy it as a part of web service, the performance we obtained was not equivalent that of scalable load balancers provided by the GCP.
 
 The next section will disscuss how to improve the performance levels of the open source software load balancer. 
 
 \section{XDP loadbalancer}\label{XDP loadbalancer}
-The ipvs is very dependent on netfilter and linux kernel network stack.
-The IP packet processing of the linux kernel have been claimed to be inefficient, and thus unable to meet the speed requirement of 10Gbps and above.
-Several alternative ways to increase the speed of the packet processig have been proposed.
-Most bypass the linux kernel network stack and proccess the packet in user spaces.
-While they may improve the performace level in certain applications, they all have some issues regarding compatibility because of the bypass.
-Often times they require designated physical NIC, other than the one used for normal linux services, e.g. ssh.
 
-This table summarize, proposed techniques to improve the sepped of the packet processing.
+The ipvs is very dependent on the Netfilter and Linux kernel network stack.
+The IP packet processing of the Linux kernel has been claimed to be inefficient, and thus unable to meet the speed requirement of 10Gbps and above.
 
-Recently, the linux kernel introduced eXpress Data Plane (XDP) [ref] the novel way to improve the IP processing speed, while keeping compatibility with the other functions of the linux netwoking stack.
+Several alternative ways, DPDK, netmaps, PF\_RING and Maglev to increase the speed of the packet processing have been proposed.
 
-By using the XDP infrastructure, a user can write a code that proccess packets in very early stage of accepting the traffic from out side the linux box.
-It will enable a user to inject the packet proccessing byte code into the kernel, let the kernel compile it into native machine code and then the code will manupulate the packet only if it matches the predefined conditions.
-Packets that are not matched the conditions are pass to the normal Linux kernel's networking stack.
+Most bypass the Linux kernel network stack and process the packet in user spaces.
+While they may improve the performance level in specific applications, they all have some issues regarding compatibility because of the bypass.
+Often they require designated physical NIC, other than the ones used for standard Linux services, e.g., ssh.
+This table summarizes, pros and cons of the proposed techniques to improve the speed of the packet processing.
+
+(Table)
+
+Recently, the Linux kernel introduced eXpress Data Plane (XDP)[ref] a novel way to improve the IP processing speed, while keeping compatibility with the other functions of the Linux networking stack.
+
+By using the XDP infrastructure, a user can write code that manipulates traffic in the very early stage of accepting the packets from outside the Linux box.
+It will enable a user to inject the packet processing bytecode into the kernel, let the kernel compile it into native machine code and then the code will manipulate the packet only if it matches the predefined conditions.
+Packets that are not matched the conditions are pass to the standard Linux kernel's networking stack.
 
 The advantage of XDP can be summarized as follows:
-(1)The packet manipulation is very fast, since it can tap the very early stage of packe processing flow.
-(2)Since it only affects the packet that matches the predefined conditions, irrelevant packet flows are proccessed by the kernel networks stack as usual.
-(3)The XDP code can be writen in C code, compiled into byte codes using clang compiler and loaded into kernel whenever a user have needs.
-However the kernel modules are not meant to be written and loaded casually to meet the users varying needs.
-The latter could crash the kernel, while the former has built in protection against it.
+(1)The traffic manipulation is very fast since it can tap the very early stage of packet processing flow.
+(2)Since it only affects the packet that matches the predefined conditions, irrelevant packet flows are processed by the kernel networks stack as usual.
+(3)The XDP code can be written in C code, compiled into bytecodes using clang compiler and loaded into kernel whenever a user has needs. The kernel modules are not meant to be written and loaded casually to meet the users varying needs. The latter could crash the kernel, while the former has built-in protection against the crash.
 
-In the course of the study the auther come to belive that it is critical to provide a software load balancer that is faster than the existing ipvs.
+In the course of the study, the author comes to believe that it is critical to provide a software load balancer that is faster than the existing ipvs.
 
-The author started to write a prototype code of XDP load balancer.
-Here the design and the prototype implementation are presented.
+(The author started to write a prototype code of XDP load balancer.
+Here the design and the prototype implementation are presented.)
 
 (Comparison XDP, DPDK, ipvs, iptables.
 
@@ -168,22 +169,29 @@ XDP: pros: hooks to the NIC driver redirect
 )
 
 \section{Conclusion}\label{Conclusion}
-The general architechture of container cluster and the load balancer configurations are discussed.
-The lateral scalability of the load balancer itself is critical in order to meet the future demand of the large scale services. The traffic distribution using the flow based ECMP routing from upstream router will eliminate bottlneck inside the cluster infrastructure.
 
-The author and collegue also investigatd containerization of ipvs load balancer using Kubernetes.
-They revealed that this will improve the portability of the service while keeping the performance level of conventional architecture.
+In order to realize the smooth migration of the container clusters, providing a uniform environment, i.e., uniform container cluster infrastructure on top of the base infrastructure is very important.
+Providing a standard load balancer architecture for incoming traffic is critical to achieving that purpose.
 
+The author investigated the general architecture of the load balancer and network configurations.
+The lateral scalability using the software load balancer and ECMP is critical in order to meet the future demand of the large scale web services.
+
+The author and colleague also investigated containerization of ipvs load balancer to improve the portability of the web services, using Kubernetes.
+They revealed that this would improve the portability of the service while keeping the performance level of conventional architecture.
+
+The author also started to implement a novel software load balancer using recently introduced Linux kernel's XDP infrastructure. While it is in the preliminary stage of the development, essential functions and design issues have been already clarified.
+
+By realizing smooth migration capability across the different cloud providers and on-premise data centers, users are freed from vendor lock-ins and ultimately obtain the opportunity to deploy global scale web services.
 
 
 \section{Future work}\label{Future work}
 
-Performance measurement of XDP loadbalancer
+1. Performance measurement of XDP loadbalancer
 
-Balancing algorithm especially consistent hashing
+2. Balancing algorithm especially consistent hashing
 (Assessment: packet reordering, persistent ssl conncetion)
  
-Containerization of XDP loadbalancer
+3. Containerization of XDP loadbalancer
 
 
 (Future work, out of scope of the dissertation)
