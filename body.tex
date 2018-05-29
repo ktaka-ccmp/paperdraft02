@@ -96,17 +96,17 @@ since Kubernetes ingress framework already provided the methods to retrieve runn
 Here we discuss overall architecture of the proposed load balancer.
 \begin{figure}
 \includegraphics[width=\columnwidth]{Figs/google_lb}
-\caption{Conventional architecture. SoftWare load Balancers(SWLB) are set up via cloud API. }
+\caption{Conventional architecture. Software load balancers are set up via cloud API. }
 \label{fig:google_lb}
 \end{figure}
 Figure~\ref{fig:google_lb} show conventional architecture of the container cluster infrastructure, e.g. Kubernetes.
 Below the dotted line, there are node linux machines that hosts containers, which is controled by Kubernetes.
-Avobe the dotted line, there are SWLBs and the Core router.
+Avobe the dotted line, there are SLBs and the Core router.
 All the equipements and software entities are controled by base cloud infrastructure.
 
-Upon launch of the container clusters, SWLBs are set up by the cloud infrastructure.
+Upon launch of the container clusters, SLBs are set up by the cloud infrastructure.
 At the same time iptables DNAT rule's are set up on each of the node linux machines.
-These SWLBs distribute incoming traffic to every node that hosts containers.
+These SLBs distribute incoming traffic to every node that hosts containers.
 The traffic is then distributed again to destination containers using iptables destination 
 network address translation (DNAT)\cite{MartinA.Brown2017,Marmol2015} rules in a round-robin manner. 
 
@@ -117,16 +117,16 @@ network address translation (DNAT)\cite{MartinA.Brown2017,Marmol2015} rules in a
 \end{figure}
 
 Figure~\ref{fig:google_lb} shows proposed architecture.
-Upon launch of the container clusters, SWLBs are also launched as a part of the container cluster.
-Then, the SWLBs comunicate with the Core router using the Border Gateway Protocol(BGP) to update routing table.
-The core router evenly distributes the incoming traffic to SWLBs, then the SWLB directly forward the traffic to destination containers.
+Upon launch of the container clusters, Software Load Balancers(SLBs) are also launched as a part of the container cluster.
+Then, the SLBs comunicate with the Core router using the Border Gateway Protocol(BGP)\cite{rekhter2005border} to update routing table.
+The core router evenly distributes the incoming traffic to SLBs, then the SLB directly forward the traffic to destination containers.
 
 The big differences between the conventinal architecture and the proposed ones are;
 a) iptables DNAT load balancing layer does not exist in the latter,
 b) while the comunication between the Kubernetes and the cloud provider is the vendor specific API requests to setup the external SLBs in the conventinal architecture, the comunication between the Kubernetes and the cloud provider is standerd BGP protocol in the proposed architecture.
 
-In other words, the proposed architecure better than the conventional one, because it eliminates one extra network hop and cummunicate with extra world using standard protocol.
-And also because the SWLBs are containerized and are the part of the cluster, a service can deployed in any environment including on-premise datacenters, if only the Core router permits the update of its routing table via BGP.
+In other words, the proposed architecure is better than the conventional one, because it eliminates one extra network hop and cummunicate with extra world using standard protocol.
+And also because the SLBs are containerized and are the part of the cluster, a service can deployed in any environment including on-premise datacenters, if only the Core router permits the update of its routing table via BGP.
 This will greately improve the portability compared to the conventional architecture where the support for vendor specific API is always required.
 
 \subsection{Containerization}\label{IPVS}
