@@ -38,17 +38,19 @@ The author believes a rigorous study on what is the best way to do so is critica
 
 If we have the uniform environment across the different cloud providers including on-premise data centers, users can smoothly migrate their web services without adjusting them to the base environment.
 This means that there are no cloud vendor lock-ins and users will gain the freedom as to where to run their web services.
-Users will be able to use their infrasructure across the world as if it were a single computer.
+Users will also be able to use combined their infrasructure across the world as if it were a single computer.
 
-The goals of this study are the followings:
-1) To clarify what type of the load bbalancer architecture is suitable for web service migration.
-2) To provide a software load balancer for such architecture.
-3) To provide working prototype system for web service migration.
+The impacts the author believes this study will give potentially to the society are followings:
+1) To provide a critical contribution to enable the smooth web service migrations.
+2) Elimination of the vendor lock-ins.
+3) To give the users opportunity to deploy global scale web services.
+
+Therefore in this study, the author clarifies what type of the load balancer architecture is suitable for web service migration. Then he discusses a software load balancer for such architecture. Finally, he provides working prototype system for web service migration.
 
 The rest of the paper is organized as follows.
 Section \ref{Related Work} highlights work that deals specifically with container cluster migration, 
 software load balancer containerization, and load balancer related tools within the context of the container technology. 
-Section \ref{Routing} will explain existing architecture problems and propose our solutions.
+Section \ref{Architecture} will explain existing architecture problems and propose our solutions.
 In Section \ref{IPVS}, experimental conditions and the parameters 
 that we considered to be important in our experiment will be described in detail.
 Then, we will show our experimental results and discuss the obtained performance characteristics in Section~\ref{XDP loadbalancer},  
@@ -72,23 +74,31 @@ RFC Per flow ECMP
 
 XDP papers
 
-\section{Comparison between the different architecture}\label{Routing}
+\section{Load balancer and network architecture}\label{Architecture}
 % \section{Traffice engineering for incomming traffic a cluster}\label{Traffice engineering}
-The typical traditional on-premise data center used a set of load balancers to distribute the incoming traffic to cluster of servers thus providig scalability and redundancy of the service.
+The typical traditional on-premise data center uses a set of load balancers to distribute the incoming traffic to cluster of servers thus providig scalability and redundancy of the service.
 The traffic is routed from the out side of the infrastructure to one of the load balancers using active-backup redundancy protocol OSPF, VRRP or HSRP.
-The traffic is then distributed to multiple of web servers.
+
+More recent architecture enable active-active redundancy using ECMP. The maglev[ref], athena[ref] and shive[ref] leverage this architecture by using software load balancers, thus providing scalability with less cost than the case where proprietary hardware load balancers are used.
+
+However, since none of these load balancers are open sourced as of the writing of this paper, users can not use either of them, in the arbitrary cloud providers and in their on-premise data centers.
+So providing a software load balancer that is usable in all of the cloud provider and in on-premise data centers is critical, which is discussed in Section~\ref{IPVS} and Section~\ref{XDP loadbalancer}.
+
+Here the author discusses the possible network architectures, using such software load balancers.
+
+Here I explain using Figs....
+
+It should be noted that even if the load balancer becomes portable and scalable, the actual traffic a data center infrastructure can accommodate is ultimately limited by the incoming network bandwidth and by the core router.
+
+\section{Per flow ECMP}\label{IPVS}
+
+Discuss routing traffic from upstream L3 switch. 
+It is important connect to upstream switches using standard protocol.
+
+ECMP > VRRP
 
 
-
-
-Even if the load balancer becomes scalable, the actual traffic a data center infrustructure can accomodate is limited by the incoming network bandwith.
-
-redundant layer 4 swithes with redundatxxi
-This section discuss the different architecture.
-
-In retrospect,  either Google type config or 
-
-\section{Containerised IPVS software load balancer}\label{IPVS}
+\section{IPVS portable load balancer}\label{IPVS}
 
 
 The author and his collegue proposed a portable load balancer for the Kubernetes cluster systems 
@@ -133,7 +143,7 @@ Often times they require designated physical NIC, other than the one used for no
 
 This table summarize, proposed techniques to improve the sepped of the packet processing.
 
-Recently, the linux kernel introduced eXpress Data Plane(XDP)[ref] the novel way to improve the IP processing speed, while keeping compatibility with the other functions of the linux netwoking stack.
+Recently, the linux kernel introduced eXpress Data Plane (XDP) [ref] the novel way to improve the IP processing speed, while keeping compatibility with the other functions of the linux netwoking stack.
 
 By using the XDP infrastructure, a user can write a code that proccess packets in very early stage of accepting the traffic from out side the linux box.
 It will enable a user to inject the packet proccessing byte code into the kernel, let the kernel compile it into native machine code and then the code will manupulate the packet only if it matches the predefined conditions.
@@ -151,13 +161,11 @@ In the course of the study the auther come to belive that it is critical to prov
 The author started to write a prototype code of XDP load balancer.
 Here the design and the prototype implementation are presented.
 
-
-
-
-Comparison XDP, DPDK, ipvs, iptables.
+(Comparison XDP, DPDK, ipvs, iptables.
 
 DPDK: pros: bypass kernel network stack cons: only for Intel NIC, dedicated NIC required
-XDP: pros: hooks to the NIC driver redirect 
+XDP: pros: hooks to the NIC driver redirect
+)
 
 \section{Conclusion}\label{Conclusion}
 The general architechture of container cluster and the load balancer configurations are discussed.
@@ -168,9 +176,18 @@ They revealed that this will improve the portability of the service while keepin
 
 
 
-
 \section{Future work}\label{Future work}
 
+Performance measurement of XDP loadbalancer
+
+Balancing algorithm especially consistent hashing
+(Assessment: packet reordering, persistent ssl conncetion)
+ 
+Containerization of XDP loadbalancer
 
 
+(Future work, out of scope of the dissertation)
+Federation of cluster infra. in different Cloud/DC.
+Data Sync.
+Global traffic routing
 
