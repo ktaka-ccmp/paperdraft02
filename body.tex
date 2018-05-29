@@ -141,23 +141,33 @@ Several alternative ways, DPDK, netmaps, PF\_RING and Maglev to increase the spe
 
 Most bypass the Linux kernel network stack and process the packet in user spaces.
 While they may improve the performance level in specific applications, they all have some issues regarding compatibility because of the bypass.
-Often they require designated physical NIC, other than the ones used for standard Linux services, e.g., ssh.
+Often they require dedicated physical NIC, other than the ones used for standard Linux services, e.g., ssh.
 This table summarizes, pros and cons of the proposed techniques to improve the speed of the packet processing.
 
 (Table)
 
-Recently, the Linux kernel introduced eXpress Data Plane (XDP)[ref] a novel way to improve the IP processing speed, while keeping compatibility with the other functions of the Linux networking stack.
+Recently, the Linux kernel introduced eXpress Data Plane (XDP)[ref] a novel way to improve the traffic manipulation speed, while keeping compatibility with the other functions of the Linux standard networking stack.
 
 By using the XDP infrastructure, a user can write code that manipulates traffic in the very early stage of accepting the packets from outside the Linux box.
-It will enable a user to inject the packet processing bytecode into the kernel, let the kernel compile it into native machine code and then the code will manipulate the packet only if it matches the predefined conditions.
-Packets that are not matched the conditions are pass to the standard Linux kernel's networking stack.
+It will enable a user to inject a bytecode into the kernel, let the kernel compile it into native machine code and then the code will manipulate the traffic only if it matches the predefined conditions.
+Traffic that did not match the conditions are pass to the Linux kernel's standard networking stack.
 
 The advantage of XDP can be summarized as follows:
-(1)The traffic manipulation is very fast since it can tap the very early stage of packet processing flow.
-(2)Since it only affects the packet that matches the predefined conditions, irrelevant packet flows are processed by the kernel networks stack as usual.
-(3)The XDP code can be written in C code, compiled into bytecodes using clang compiler and loaded into kernel whenever a user has needs. The kernel modules are not meant to be written and loaded casually to meet the users varying needs. The latter could crash the kernel, while the former has built-in protection against the crash.
+1)The traffic manipulation is very fast since it can tap the very early stage of packet processing flow.
+2)Since it only affects the traffic that matches the predefined conditions, irrelevant traffic is processed by the Linux standard networks stack as usual.
+3)The XDP let the users manipulate the traffic in the kernel space while keeping the safety.
+
+The XDP code can be written in C code, compiled into bytecodes using clang compiler and loaded into kernel whenever a user has needs.
+The XDP infrastructure provides built-in protection against dangerous codes.
+In contrast, while one can always implement the Linux kernel modules that manipulate the traffic, it often crashes the kernel when something wrong happens.
+Thus, the XDP provide in-kernel traffic manipulation capability while keeping the safety, without affecting the standards network services.
 
 In the course of the study, the author comes to believe that it is critical to provide a software load balancer that is faster than the existing ipvs.
+Here he discusses the design and prototype implementation of such a load balancer.
+
+
+
+
 
 (The author started to write a prototype code of XDP load balancer.
 Here the design and the prototype implementation are presented.)
