@@ -1,51 +1,38 @@
 \section{Introduction}
 
-Recently, Linux containers have drawn significant amount of attention because they are lightweight, portable, and repeatable.
-Linux containers are generally more lightweight than virtual machine (VM) clusters, 
-because the containers share the kernel with the host operating system (OS), even though they maintain separate execution environments. 
-They are generally portable because the process execution environments are archived into tar files, 
-so whenever one attempts to run a container, the exact same file systems are restored from the archives 
-even when totally different data centers are used. 
-This means that containers can provide repeatable and portable execution environments.
-%
-For the same reasons, Linux containers are attractive for web services as well, 
-and it is expected that web services consisting of container clusters would be 
-capable of being migrated easily for variety of purposes. For example disaster recovery, 
-cost performance improvements, legal compliance, and shortening the geographical distance to customers 
-are the main concerns for web service providers in e-commerce, gaming, Financial technology(Fintech) and Internet of Things(IoT) field.
-%
+(Background)
+Recently, launching web services on cloud computing infrastructure is getting more popular.
+Launching web services on the cloud is easier than launching them on on-premise data centers.
+A web service on the cloud becomes scalable, which means it can accommodate a large amount of traffic from the Internet by increasing the number of web servers, on demand.
+To distribute high volume traffic from the Internet to thousands of web servers load balancers are often used.
+Major cloud providers have developed software load balancers[1,2] as part of their infrastructures, which they claim to have a high-performance level and scalability.
+In the case of on-premise data centers, one can use proprietary hardware load balancers.
+The actual implementation and the performance level of those existing load balancers are very different.
 
-Several container cluster management systems, including kuberenates, docker swarm etc.,  have been proposed, which  
-enable easy deployment of container clusters.
-If these container cluster management systems could hide the differences in the base environments, users would be able to easily deploy a web service on different cloud providers or on on-premise data centers, without adjusting the container cluster configurations to the new environment. 
-This allows a user to smoothly migrate a web service consisting of a container cluster even to the other side of the world. 
+As for another issue to address regarding web services,
+there are also needs to use multiple of cloud providers or on-premise data centers seamlessly, which spread across the world, to prepare for the disaster, to lower the cost or to comply with the legal requirement.
+Linux container technology[3] facilitates these usages by providing container cluster management system as a middleware,
+where one can deploy a web service that consists of a cluster of containers without modification even on different infrastructures.
+However, in reality, it is difficult to do so, because existing load balancers are very different and are not included in the container cluster management system.
+Therefore, users should always manually adjust their web services to the infrastructure.
 
-However, in actuality, the current container management systems fail to provide uniform environments across the different cloud providers. 
-One of the most prominent differences they fail to hide is the way they route the incoming traffic into the container cluster.
+(Problem)
+In short, there exist several software load balancers that are specific to cloud vendors and on-premise data centers.
+The differences among them are the major obstacles to provide uniform container cluster platform, which is necessary to realize web service migration across the different cloud providers and on-premise data centers.
 
-For example in the case of the Kubernetes, a load balancer is not included in a cluster management system, and is heavily dependent on external load balancers that are set up on the fly 
-by cloud providers through their application protocol interfaces (APIs). 
-These external load balancers distribute incoming traffic to every server that hosts containers.
-The traffic is then distributed again to destination containers using iptables destination 
-network address translation (DNAT)\cite{MartinA.Brown2017,Marmol2015} rules in a round-robin manner. 
-The problem happens in the environment with a load balancer that is not supported by the Kubernetes, 
-e.g. in an on-premise data center with a bare metal load balancer. 
-In such environments, the user needs to manually configure 
-the static route for inbound traffic in an ad-hoc manner. 
+(Proposal)
+To address this problem, we propose a portable and scalable software load balancer that can be used in any environment including cloud providers and in on-premise data centers.
+We can include this load balancer as a part of a container cluster management system, which acts as a common middleware on which web services run.
+Users now do not need manual adjustment of their services to the infrastructures.
+We will implement the proposed software load balancer using following technologies;
+1) To make the load balancer usable in any environment, we containerize it using Linux container technology[3].
+2) To make the load balancer scalable, we make it capable of being run in parallel using Equal Cost Multi-Path(ECMP) technique[4].
+3) To make the load balancer’s performance level meet the need for 10Gbps network speed, we implement the load balancer using eXpress Data Plane(XDP) technology[5].
+By providing container cluster management system including the proposed load balancer, we also aim to demonstrate migration capability, where one can migrate a web application across the different cloud providers and on-premise data centers, all over the world, with one push button.
 
-In order to provide a uniform environment across the different cloud providers, it is important to have a single way of handling incoming traffic.
-The author believes a rigorous study on what is the best way to do so is critical.
-
-If we have the uniform environment across the different cloud providers including on-premise data centers, users can smoothly migrate their web services without adjusting them to the base environment.
-This means that there are no cloud vendor lock-ins and users will gain the freedom as to where to run their web services.
-Users will also be able to use combined their infrasructure across the world as if it were a single computer.
-
-The impacts the author believes this study will potentially give to the society are the followings:
-1) To provide a critical contribution to enable smooth web service migrations.
-2) Elimination of the vendor lock-ins.
-3) To give the users opportunity to deploy global scale web services.
-
-Therefore in this study, the author clarifies what type of the load balancer architecture is suitable for web service migration. Then he discusses a software load balancer for such architecture. Finally, he provides working prototype system for web service migration.
+(Summary of the results)
+The outcome of our study will benefit users who want to deploy their web services on any cloud provider where no scalable load balancer is provided, to achieve high scalability.
+Moreover, the result of our study will also benefit users who want to use a group of different cloud providers and on-premise data centers across the globe, as if it were a single computer on which their web services run.
 
 (This paragraph needs rewrite)The rest of the paper is organized as follows.
 Section \ref{Related Work} highlights work that deals specifically with container cluster migration, 
