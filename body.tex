@@ -185,7 +185,7 @@ Even though we could successfully containerize the load balancers and could depl
 the performance we obtained was not equivalent that of scalable load balancers provided by the GCP.
 We will discuss ongoing work as to how to improve the performance levels of the open source software load balancer using the novel XDP technology.
 
-The ipvs is very dependent on the Netfilter\cite{hubert2002linux} and Linux kernel's standard network stack.
+The IPVS is implemented as kernel modules that attach the Netfilter's\cite{hubert2002linux} hooks and heavily dependent on Linux kernel's standard network stack.
 The IP packet processing of the Linux kernel has been claimed to be inefficient, and thus unable to meet the speed requirement of 10Gbps and above.
 Several alternative techniques, DPDK\cite{dpdkorg}, netmaps\cite{rizzo2012netmap}, PF\_RING\cite{deri2004improving} and Maglev\cite{eisenbud2016maglev} to increase the speed of the packet processing have been proposed.
 
